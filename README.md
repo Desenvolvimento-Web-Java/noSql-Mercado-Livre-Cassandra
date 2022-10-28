@@ -1,2 +1,2 @@
 # noSql-Mercado-Livre-Cassandra
-A
+Atividade de manipulação de dados do Redis para o Cassandra utilizando o Python - Disciplina de Bando de Dados Não Relacional
