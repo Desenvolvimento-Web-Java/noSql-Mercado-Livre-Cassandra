@@ -34,27 +34,29 @@ session.execute(
 print("Successful!")
 
 
+
+
 #### Intert ####
 
 # Usuario
 def insertUser(nome, cpf, email, end, tel):
     preInsert = session.prepare(
-        "INSERT INTO usuario (nome, cpf, email, end, tel) VALUES (?, ?, ?, ?);")
+        "INSERT INTO usuario (nome, cpf, email, end, tel) VALUES (?, ?, ?, ?, ?);")
 
     session.execute(preInsert, [nome, cpf, email, end, tel])
 
+
+
 # Vendedor
-
-
 def insertVendedor(nome, cpf, email, end, tel):
     preInsert = session.prepare(
-        "INSERT INTO vendedor (nome, email, end, tel) VALUES (?, ?, ?, ?);")
+        "INSERT INTO vendedor (nome, cpf, email, end, tel) VALUES (?, ?, ?, ?, ?);")
 
-    session.execute(preInsert, [nome, email, end, tel])
+    session.execute(preInsert, [nome, cpf, email, end, tel])
+
+
 
 # Produtos
-
-
 def insertProduct(id, nome, preco, quantidade, vendedorEmail):
     vendedor = session.execute("SELECT * FROM vendedor;")
 
@@ -69,7 +71,6 @@ def insertProduct(id, nome, preco, quantidade, vendedorEmail):
 
 
 # Compras
-
 def compras(usuario, produto, status, data, pagamento, quantidade, vendedorEmail, userEmail):
 
     produto = session.execute("SELECT * FROM produto;")
@@ -82,17 +83,15 @@ def compras(usuario, produto, status, data, pagamento, quantidade, vendedorEmail
                 if (vend.email == vendedorEmail):
                     for user in users:
                         if (user.email == userEmail):
-                            precoTotal = float(prod.preco) * int(quantidade)
+                            valorTotal = float(prod.preco) * int(quantidade)
 
                             preInsert = session.prepare(
-                                "INSERT INTO compra (precototal, status, data, pagamento, produto, vendedor, usuario) VALUES (?, ?, ?, ?, ?, ?, ?);")
+                                "INSERT INTO compra (valorTotal, status, data, pagamento, produto, vendedor, usuario) VALUES (?, ?, ?, ?, ?, ?, ?);")
 
-                            session.execute(preInsert, [str(precoTotal), usuario, status, data, pagamento, [
+                            session.execute(preInsert, [str(valorTotal), usuario, status, data, pagamento, [
                                             prod.id, produto, prod.preco, quantidade], [vendedorEmail, vendedor.nome], [userEmail, user.nome]])
 
 # Favoritos
-
-
 def insertFav(nomeProd, email, preco, quantidade):
 
     produto = session.execute("SELECT * FROM produto;")
@@ -109,8 +108,7 @@ def insertFav(nomeProd, email, preco, quantidade):
                                     [prod.id, nomeProd, preco, quantidade, prod.preco, prod.vendedor[0], prod.vendedor[1]], email])
 
 
-#### Função Find ####
-
+#### Find ####
 def findUsers():
     users = session.execute("SELECT * FROM usuario;")
     usersList = [{}]
@@ -154,7 +152,7 @@ def findCompras():
     print(comprasList)
 
 
-def findUserFav(email):
+def findFavoritos(email):
     users = session.execute("SELECT * FROM usuario;")
 
     for user in users:
@@ -174,6 +172,66 @@ def findUserFav(email):
 
 
 #### Update ####
+def updateUser(email, nome, tel, endereco):
+    users = session.execute("SELECT * FROM usuario;")
+
+    for user in users:
+        if (user.email == email):
+            session.execute("UPDATE usuario SET nome = '%s', email = '%s', tel = '%s', endereco = ['%s', '%s', '%s', '%s',] WHERE email = '%s'" % (nome, tel, endereco[0], endereco[1], endereco[2], endereco[3], email))
+            
+            findUsers(email)
+
+
+def updateVendedor(email, tel, nome, endereco):
+    vendedores = session.execute("SELECT * FROM vendedor;")
+
+    for vend in vendedores:
+        if (vend.email == email):
+            session.execute("UPDATE vendedor SET nome = '%s', tel = '%s', endereco = ['%s', '%s', '%s', '%s'] WHERE email = '%s'" % (nome, tel, endereco[0], endereco[1], endereco[2], endereco[3], email))
+            
+            findVendedores(email)
+
+
+def updateProduto(id, nome, preco, quantidade, vendedorEmail):
+    produtos = session.execute("SELECT * FROM produto;")
+
+    vendedor = session.execute("SELECT * FROM vendedor;")
+
+    for vend in vendedor:
+        if (vend.email == vendedorEmail):
+            for prod in produtos:
+                if (prod.id == id):
+                    session.execute("UPDATE produto SET nome = '%s', preco = '%s', quantidade = '%s', vendedor = ['%s', '%s'] WHERE id = '%s'" % (nome, preco, quantidade, vendedorEmail, vendedor.nome, id))
+                    
+                    findProdutos(id)
 
 
 #### Delete ####
+def deleteUser(email):
+    users = session.execute("SELECT * FROM usuario;")
+
+    for user in users:
+        if (user.email == email):
+            session.execute("DELETE FROM usuario WHERE email = '%s'" % email)
+            
+            findUsers()
+
+
+def deleteVendedor(email):
+    vendedores = session.execute("SELECT * FROM vendedor;")
+
+    for vend in vendedores:
+        if (vend.email == email):
+            session.execute("DELETE FROM vendedor WHERE email = '%s'" % email)
+            
+            findVendedores()
+
+
+def deleteProduto(id):
+    produtos = session.execute("SELECT * FROM produto;")
+
+    for prod in produtos:
+        if (prod.id == id):
+            session.execute("DELETE FROM produto WHERE id = '%s'" % id)
+            
+            findProdutos()
