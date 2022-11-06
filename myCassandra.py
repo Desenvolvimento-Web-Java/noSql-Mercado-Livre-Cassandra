@@ -18,23 +18,19 @@ session.execute("USE cassandra;")
 
 
 #### Tabelas usuario, vendedor, produtos, compra ####
-
-print("Generete all tables in project...")
+print("Gerar todas as tabelas")
 session.execute(
-    "CREATE TABLE IF NOT EXISTS usuario (email text PRIMARY KEY, nome text, cpf text, end text, fav text);")
-print("User created...")
+    "CREATE TABLE IF NOT EXISTS usuario (email text PRIMARY KEY, nome text, cpf text, tel text, end text, fav text);")
+print("Criação do usuário")
 session.execute(
-    "CREATE TABLE IF NOT EXISTS vendedor (email text PRIMARY KEY, nome text, cpf text, end text);")
-print("Vendedor created...")
+    "CREATE TABLE IF NOT EXISTS vendedor (email text PRIMARY KEY, nome text, cpf text, tel text, end text);")
+print("Criação do vendedor")
 session.execute(
-    "CREATE TABLE IF NOT EXISTS produtos (id text PRIMARY KEY, nome text, preco text, vendedor text);")
-print("Produtos created...")
+    "CREATE TABLE IF NOT EXISTS produtos (id text PRIMARY KEY, nome text, preco text, quant text, vendedor text);")
+print("Criação de produtos")
 session.execute(
-    "CREATE TABLE IF NOT EXISTS compra (id text PRIMARY KEY, usuario text, produto text, total text);")
-print("Successful!")
-
-
-
+    "CREATE TABLE IF NOT EXISTS compra (id text PRIMARY KEY, usuario text, produto text, total text, pagamento text, quant text, vend text, user text);")
+print("Criado com sucesso")
 
 #### Intert ####
 
@@ -71,24 +67,24 @@ def insertProduct(id, nome, preco, quantidade, vendedorEmail):
 
 
 # Compras
-def compras(usuario, produto, status, data, pagamento, quantidade, vendedorEmail, userEmail):
+def insertCompras(id, usuario, produto, data, pagamento, quantidade, vendedorEmail, userEmail):
 
-    produto = session.execute("SELECT * FROM produto;")
+    produtos = session.execute("SELECT * FROM produto;")
     vendedor = session.execute("SELECT * FROM vendedor;")
     users = session.execute("SELECT * FROM usuario;")
 
-    for prod in produto:
-        if (prod.nome == produto):
+    for prod in produtos:
+        if (prod.nome == produtos):
             for vend in vendedor:
                 if (vend.email == vendedorEmail):
                     for user in users:
                         if (user.email == userEmail):
                             valorTotal = float(prod.preco) * int(quantidade)
 
-                            preInsert = session.prepare(
-                                "INSERT INTO compra (valorTotal, status, data, pagamento, produto, vendedor, usuario) VALUES (?, ?, ?, ?, ?, ?, ?);")
+                            compraInsert = session.apresenta(
+                                "INSERT INTO compra (id, valorTotal, data, pagamento, produto, vendedor, usuario) VALUES (?, ?, ?, ?, ?, ?, ?);")
 
-                            session.execute(preInsert, [str(valorTotal), usuario, status, data, pagamento, [
+                            session.execute(compraInsert, [id, str(valorTotal), usuario, data, pagamento, [
                                             prod.id, produto, prod.preco, quantidade], [vendedorEmail, vendedor.nome], [userEmail, user.nome]])
 
 # Favoritos
@@ -235,3 +231,5 @@ def deleteProduto(id):
             session.execute("DELETE FROM produto WHERE id = '%s'" % id)
             
             findProdutos()
+
+
